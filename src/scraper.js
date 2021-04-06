@@ -13,7 +13,7 @@ const fetchTrivia = async () => {
     )).data;
     const { token } = (await axios.get(process.env.URL_SESSION_TOKEN)).data;
     const { trivia_categories } = (await axios.get(process.env.URL_QUIZ_CATEGORY_ID)).data;
-    console.log(trivia_categories);
+   
     const trivia = [];
 
     let totalQuizCount = overall.total_num_of_verified_questions;
@@ -56,22 +56,28 @@ const fetchTrivia = async () => {
       }
     });
 
-    Object.entries(filteredTriviaObject).forEach(([category, categoryTrivia]) => {
+    const categories = Object.keys(filteredTriviaObject);
+    for(let categoryIndex = 0; categoryIndex < categories.length; categoryIndex++){
+      const category = categories[categoryIndex];
+      const categoryTrivia = filteredTriviaObject[category];
       const retrievedCategoryObject = trivia_categories.find(categoryObject => categoryObject.name === category);
       const { id, name, difficulty } = getDifficultyLevel(retrievedCategoryObject, categoryTrivia);
-      Object.entries(difficulty).forEach(([difficultyLevel, listOfQuestions]) => {
-        redis.set(`category-${id}-difficulty-${difficultyLevel}`, JSON.stringify(listOfQuestions))
-          .then(() => {
-            const date = new Date().toISOString();
-            console.log(`${date}: Successfully saved ${name} of difficulty ${difficultyLevel} `)
-          })
-          .catch(err => {
-            const date = new Date().toISOString();
-            console.log(`${date}: Failed to save ${name} of difficulty ${difficultyLevel} ${err}`)
+      
+      const difficultyQuizPairsArray = Object.entries(difficulty);
 
-          })
-      })
-    })
+      for(let pairIndex = 0; pairIndex < difficultyQuizPairsArray.length; pairIndex++){
+        const [difficultyLevel, listOfQuestions] = difficultyQuizPairsArray[pairIndex];
+        try{
+          await redis.set(`category-${id}-difficulty-${difficultyLevel}`, JSON.stringify(listOfQuestions));
+          const date = new Date().toISOString();
+          console.log(`${date}: Successfully saved ${name} of difficulty ${difficultyLevel} `);
+        }catch(err){
+          const date = new Date().toISOString();
+          console.log(`${date}: Failed to save ${name} of difficulty ${difficultyLevel} ${err}`);
+        }
+      }
+
+    }
   } catch (err) {
     console.log("An error has occurred", err);
   }
@@ -79,18 +85,7 @@ const fetchTrivia = async () => {
 
 fetchTrivia();
 
-// const data = {
-//   name: "Joseph Mawa",
-//   age: 100,
-//   gender: "Male"
-// }
 
-// redis.set("data", JSON.stringify(data)).then(status => {
-//   console.log(status)
-//   redis.disconnect();
-// }).catch(err => {
-//   console.error(err);
-// })
 
 
 

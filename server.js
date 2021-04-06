@@ -23,6 +23,14 @@ server.get("/", (request, response) => {
     })
 });
 
+server.get("/trivia/:category/:difficulty", async (req, res) => {
+     const { category, difficulty } = req.params;
+     if(!category || !difficulty){
+         res.send({"message": "Bad request"});
+     }
+     res.send({category, difficulty});
+})
+
 server.listen(PORT, () => {
     console.log(`Your app is listening on port ${PORT}`);
 });
