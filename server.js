@@ -6,29 +6,30 @@ require("dotenv").config();
 server.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const redis = new Redis();
+const redisConfig = {
+    port: process.env.DATABASE_PORT,
+    host: process.env.DATABASE_HOST,
+    password: process.env.DATABASE_PASSWORD
+  }
+const redis = new Redis(redisConfig);
 
 
 server.get("/", (request, response) => {
-    redis.get("data", (err, result) => {
-       if(err){
-           console.err(err);
-           return;
-       }
-       if(result === null){
-           response.status(404).json({message: "No data found"});
-           return;
-       }
-       response.json(JSON.parse(result));
-    })
+   response.json({"message": "Hello world!"});
 });
 
 server.get("/trivia/:category/:difficulty", async (req, res) => {
-     const { category, difficulty } = req.params;
-     if(!category || !difficulty){
-         res.send({"message": "Bad request"});
-     }
-     res.send({category, difficulty});
+    const { category, difficulty } = req.params;
+    if (!category.trim() || !difficulty.trim()) {
+        res.status(400).send({ "message": "Bad request" });
+        return;
+    }
+    const response = await redis.get(`category-${category.trim()}-difficulty-${difficulty.trim()}`);
+    if (!response) {
+        res.status(404).send({ "message": "Resource not found" });
+        return;
+    }
+    res.status(200).send({ data: JSON.parse(response) });
 })
 
 server.listen(PORT, () => {
