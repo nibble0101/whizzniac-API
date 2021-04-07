@@ -27,6 +27,14 @@ const fetchTrivia = async () => {
       await axios.get(process.env.URL_QUIZ_CATEGORY_ID)
     ).data;
     console.log(`${getDate()}: Successfully fetched  trivia categories`);
+
+    try{
+        await redis.set("categories", JSON.stringify(trivia_categories));
+        console.log(`${getDate()}: Successfully saved categories to database`)
+    }catch(err){
+       console.log(`${getDate()}: Failed to save categories to database`, err)
+    }
+
     const trivia = [];
 
     let totalQuizCount = overall.total_num_of_verified_questions;
