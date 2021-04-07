@@ -1,9 +1,12 @@
 const express = require("express");
-const server = express();
+const app = express();
 const Redis = require("ioredis");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
 
-server.use(express.json());
+app.use(express.json());
+
 
 const PORT = process.env.PORT || 3000;
 const redisConfig = {
@@ -13,28 +16,41 @@ const redisConfig = {
 };
 const redis = new Redis(redisConfig);
 
-server.get("/", (request, response) => {
+
+app.get("/", (request, response) => {
   response.sendFile(__dirname + "/public/index.html");
 });
 
-server.get("/trivia/:category/:difficulty", async (req, res) => {
-  const { category, difficulty } = req.params;
-  if (!category.trim() || !difficulty.trim()) {
+app.get("/categories", async(req, res) => {
+  const response = await redis.get("categories");
+  if (!response) {
+    res.status(404).send({ message: "Resource not found" });
+    return;
+  }
+  res.status(200).send(JSON.parse(response));
+})
+
+app.get("/trivia", async (req, res) => {
+  let { category, difficulty } = req.query;
+  category = category.trim();
+  difficulty = difficulty.toLowerCase().trim();
+  if (!category || !difficulty) {
     res.status(400).send({ message: "Bad request" });
     return;
   }
   const response = await redis.get(
-    `category-${category.trim()}-difficulty-${difficulty.trim()}`
+    `category-${category}-difficulty-${difficulty}`
   );
   if (!response) {
     res.status(404).send({ message: "Resource not found" });
     return;
   }
-  res.status(200).send({ data: JSON.parse(response) });
+  res.status(200).send(JSON.parse(response));
 });
 
-server.use(express.static("public"));
+app.use("/documentation", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(express.static("public"));
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Your app is listening on port ${PORT}`);
 });

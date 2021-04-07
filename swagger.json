@@ -1,0 +1,114 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trivia API",
+    "description": "A simple Trivia API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://whizzniac-api.herokuapp.com/",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "description": "Development server"
+    }
+    
+  ],
+  "paths": {
+    "/categories": {
+      "get": {
+        "summary": "Gets the list of all quiz categories",
+        "description": "Returns the list of all available quiz categories",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of all quiz categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name":{
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trivia": {
+      "get": {
+        "summary": "Gets the list of questions in a specific category and difficulty level",
+        "description": "Returns the list of questions in a specific category and difficulty level",
+        "parameters":[
+          {
+            "in":"query",
+            "name":"category",
+            "required": true,
+            "schema":{
+              "type":"integer"
+            },
+            "description":"Quiz category Id"
+          },
+          {
+            "in":"query",
+            "name":"difficulty",
+            "required": true,
+            "schema":{
+              "type":"string"
+            },
+            "description":"Difficulty level of the quiz"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of questions in a specific category and difficulty level",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "difficulty": {
+                        "type": "string"
+                      },
+                      "question": {
+                        "type": "string"
+                      },
+                      "correct_answer": {
+                        "type": "string"
+                      },
+                      "incorrect_answers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
