@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();
 const Redis = require("ioredis");
+const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
 
 app.use(express.json());
+app.use(cors());
 
 
 const PORT = process.env.PORT || 3000;
@@ -15,7 +17,6 @@ const redisConfig = {
   password: process.env.DATABASE_PASSWORD,
 };
 const redis = new Redis(redisConfig);
-
 
 app.get("/", (request, response) => {
   response.sendFile(__dirname + "/public/index.html");
