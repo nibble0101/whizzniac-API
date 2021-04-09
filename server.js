@@ -8,7 +8,7 @@ require("dotenv").config();
 
 app.use(express.json());
 app.use(cors());
-
+app.disable("x-powered-by");
 
 const PORT = process.env.PORT || 3000;
 const redisConfig = {
@@ -16,20 +16,25 @@ const redisConfig = {
   host: process.env.DATABASE_HOST,
   password: process.env.DATABASE_PASSWORD,
 };
+
+const swaggerOptions = {
+  explorer: true,
+  customSiteTitle: "Quiz API",
+};
 const redis = new Redis(redisConfig);
 
 app.get("/", (request, response) => {
   response.sendFile(__dirname + "/public/index.html");
 });
 
-app.get("/categories", async(req, res) => {
+app.get("/categories", async (req, res) => {
   const response = await redis.get("categories");
   if (!response) {
     res.status(404).send({ message: "Resource not found" });
     return;
   }
   res.status(200).send(JSON.parse(response));
-})
+});
 
 app.get("/trivia", async (req, res) => {
   let { category, difficulty } = req.query;
@@ -49,8 +54,33 @@ app.get("/trivia", async (req, res) => {
   res.status(200).send(JSON.parse(response));
 });
 
-app.use("/documentation", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.static("public"));
+app.use(
+  "/documentation",
+  async (req, res, next) => {
+    const response = await redis.get("categories");
+    console.log("called");
+    if (response) {
+      const parsedData = JSON.parse(response);
+      let firstId = parsedData[0].id;
+      const lastId = parsedData[parsedData.length - 1].id;
+      const enumArray = [];
+      while (firstId <= lastId) {
+        enumArray.push(firstId);
+        firstId++;
+      }
+      if (enumArray.length) {
+        swaggerDocument.paths["/trivia"].get.parameters[0].schema[
+          "enum"
+        ] = enumArray;
+      }
+    }
+    req.swaggerDoc = swaggerDocument; 
+    next();
+  },
+  swaggerUi.serve,
+  swaggerUi.setup(undefined, swaggerOptions)
+);
 
 app.listen(PORT, () => {
   console.log(`Your app is listening on port ${PORT}`);

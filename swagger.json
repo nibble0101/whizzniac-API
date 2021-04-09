@@ -2,9 +2,25 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Trivia API",
-    "description": "A simple Trivia API",
-    "version": "1.0.0"
+    "description": "A simple Trivia API which is originally sourced from Open Trivia API",
+    "version": "1.0.0",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
   },
+  "host": "whizzniac-api.herokuapp.com",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Categories",
+      "description": "A list of quiz categories"
+    },
+    {
+      "name": "Trivia",
+      "description": "A list of questions in a specific category and difficulty level"
+    }
+  ],
   "servers": [
     {
       "url": "https://whizzniac-api.herokuapp.com/",
@@ -14,13 +30,13 @@
       "url": "http://localhost:3000/",
       "description": "Development server"
     }
-    
   ],
   "paths": {
     "/categories": {
       "get": {
         "summary": "Gets the list of all quiz categories",
         "description": "Returns the list of all available quiz categories",
+        "tags": ["Categories"],
         "responses": {
           "200": {
             "description": "Successfully retrieved the list of all quiz categories",
@@ -34,7 +50,7 @@
                       "id": {
                         "type": "integer"
                       },
-                      "name":{
+                      "name": {
                         "type": "string"
                       }
                     }
@@ -50,24 +66,27 @@
       "get": {
         "summary": "Gets the list of questions in a specific category and difficulty level",
         "description": "Returns the list of questions in a specific category and difficulty level",
-        "parameters":[
+        "tags": ["Trivia"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"category",
+            "in": "query",
+            "name": "category",
             "required": true,
-            "schema":{
-              "type":"integer"
+            "schema": {
+              "type": "integer"
             },
-            "description":"Quiz category Id"
+            "description": "Quiz category Id"
           },
           {
-            "in":"query",
-            "name":"difficulty",
+            "in": "query",
+            "name": "difficulty",
             "required": true,
-            "schema":{
-              "type":"string"
+            "schema": {
+              "type": "string",
+              "enum": ["mixed", "easy", "medium", "hard"]
             },
-            "description":"Difficulty level of the quiz"
+            
+            "description": "Difficulty level of the quiz"
           }
         ],
         "responses": {
