@@ -54,33 +54,37 @@ app.get("/trivia", async (req, res) => {
   res.status(200).send(JSON.parse(response));
 });
 
-app.use(express.static("public"));
+const enumArray = [];
 app.use(
   "/documentation",
   async (req, res, next) => {
-    const response = await redis.get("categories");
-    console.log("called");
-    if (response) {
-      const parsedData = JSON.parse(response);
-      let firstId = parsedData[0].id;
-      const lastId = parsedData[parsedData.length - 1].id;
-      const enumArray = [];
-      while (firstId <= lastId) {
-        enumArray.push(firstId);
-        firstId++;
+    // Swagger calls this middleware 6 times. 
+    // This ensures data is fetched from DB once.
+    if(!enumArray.length){
+      const response = await redis.get("categories");
+      if (response) {
+        const parsedData = JSON.parse(response);
+        let firstId = parsedData[0].id;
+        const lastId = parsedData[parsedData.length - 1].id;
+        while (firstId <= lastId) {
+          enumArray.push(firstId);
+          firstId++;
+        }
       }
       if (enumArray.length) {
         swaggerDocument.paths["/trivia"].get.parameters[0].schema[
           "enum"
         ] = enumArray;
       }
+      req.swaggerDoc = swaggerDocument; 
     }
-    req.swaggerDoc = swaggerDocument; 
     next();
   },
   swaggerUi.serve,
   swaggerUi.setup(undefined, swaggerOptions)
 );
+
+app.use(express.static("public"));
 
 app.listen(PORT, () => {
   console.log(`Your app is listening on port ${PORT}`);
