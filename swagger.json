@@ -9,8 +9,6 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "whizzniac-api.herokuapp.com",
-  "basePath": "/documentation",
   "tags": [
     {
       "name": "Categories",
