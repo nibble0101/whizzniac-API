@@ -19,16 +19,6 @@
       "description": "A list of questions in a specific category and difficulty level"
     }
   ],
-  "servers": [
-    {
-      "url": "https://whizzniac-api.herokuapp.com/",
-      "description": "Production server"
-    },
-    {
-      "url": "http://localhost:3000/",
-      "description": "Development server"
-    }
-  ],
   "paths": {
     "/categories": {
       "get": {
