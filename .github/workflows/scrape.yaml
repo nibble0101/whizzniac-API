@@ -1,14 +1,12 @@
 name: Ping server
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  schedule:
+  - cron: "50 12 9 7 *"
 
 jobs:
 
-  test:
+  ping:
     name: ping server
     runs-on: ubuntu-latest
 
