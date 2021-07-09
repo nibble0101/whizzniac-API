@@ -40,7 +40,7 @@ app.get("/scrape", async (req, res) => {
   nodeCron.schedule(
     `${date.getMinutes() + 1} ${date.getHours()} ${date.getDate()} ${
       date.getMonth() + 1
-    }`,
+    } *`,
     fetchTrivia
   );
   console.log("Job scheduled");
