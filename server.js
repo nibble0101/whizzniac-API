@@ -3,6 +3,7 @@ const app = express();
 const Redis = require("ioredis");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
+const { fetchTrivia } = require("./src/scraper");
 const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
 
@@ -23,8 +24,26 @@ const swaggerOptions = {
 };
 const redis = new Redis(redisConfig);
 
-app.get("/", (request, response) => {
-  response.sendFile(__dirname + "/public/index.html");
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
+
+app.get("/scrape", async (req, res) => {
+  const { key } = req.query;
+  if (!key || key !== process.env.API_KEY) {
+    console.log("Submitted invalid API key");
+    res.status(404).send({ message: "Invalid API key" });
+  }
+  await fetchTrivia();
+  res.status(200).send({ message: "Scraping successfull" });
+});
+
+app.get("/lastupdate", async (req, res) => {
+  const date = await redis.get("lastUpdatedOn");
+  if (!date) {
+    res.status(404).send({ message: "No data found" });
+  }
+  res.status(200).send({ date });
 });
 
 app.get("/categories", async (req, res) => {
@@ -58,9 +77,9 @@ const enumArray = [];
 app.use(
   "/documentation",
   async (req, res, next) => {
-    // Swagger calls this middleware 6 times. 
+    // Swagger calls this middleware 6 times.
     // This ensures data is fetched from DB once.
-    if(!enumArray.length){
+    if (!enumArray.length) {
       const response = await redis.get("categories");
       if (response) {
         const parsedData = JSON.parse(response);
@@ -72,11 +91,10 @@ app.use(
         }
       }
       if (enumArray.length) {
-        swaggerDocument.paths["/trivia"].get.parameters[0].schema[
-          "enum"
-        ] = enumArray;
+        swaggerDocument.paths["/trivia"].get.parameters[0].schema["enum"] =
+          enumArray;
       }
-      req.swaggerDoc = swaggerDocument; 
+      req.swaggerDoc = swaggerDocument;
     }
     next();
   },
