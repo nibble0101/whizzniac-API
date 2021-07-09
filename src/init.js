@@ -1,4 +1,4 @@
-const axios = require(axios);
+const axios = require("axios");
 
 const url = "https://whizzniac-api.herokuapp.com";
 
