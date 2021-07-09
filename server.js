@@ -3,6 +3,7 @@ const app = express();
 const Redis = require("ioredis");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
+const nodeCron = require("node-cron");
 const { fetchTrivia } = require("./src/scraper");
 const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
@@ -34,7 +35,15 @@ app.get("/scrape", async (req, res) => {
     console.log("Submitted invalid API key");
     res.status(404).send({ message: "Invalid API key" });
   }
-  await fetchTrivia();
+  const date = new Date();
+  console.log("Scheduling job");
+  nodeCron.schedule(
+    `${date.getMinutes() + 1} ${date.getHours()} ${date.getDate()} ${
+      date.getMonth() + 1
+    }`,
+    fetchTrivia
+  );
+  console.log("Job scheduled");
   res.status(200).send({ message: "Scraping successfull" });
 });
 
