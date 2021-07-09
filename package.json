@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start-server": "nodemon server.js",
-    "fetch-quiz": "node src/scraper.js"
+    "fetch-quiz": "node src/scraper.js",
+    "ping": "node src/init.js"
   },
   "repository": {
     "type": "git",
