@@ -23,5 +23,6 @@ jobs:
     - name: Ping server
       run: |
          echo "About to ping server"
-         npm ci && node src/init.js {{secrets.API_KEY}}
+         npm install
+         node src/init.js {{secrets.API_KEY}}
          echo "Finished pinging server"
