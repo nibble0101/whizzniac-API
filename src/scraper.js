@@ -126,5 +126,4 @@ const fetchTrivia = async () => {
   }
 };
 
-fetchTrivia()
-// module.exports = { fetchTrivia };
+module.exports = { fetchTrivia };

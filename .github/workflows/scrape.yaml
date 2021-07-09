@@ -2,7 +2,7 @@ name: Ping server
 
 on:
   schedule:
-  - cron: "50 15 9 7 *"
+  - cron: "5 17 9 7 *"
 
 jobs:
 
