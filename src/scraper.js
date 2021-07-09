@@ -13,13 +13,8 @@ const redis = new Redis(redisConfig);
 
 const fetchTrivia = async () => {
   try {
-    const response = await redis.flushall();
-    if (response === "OK") {
-      console.log(`${getDate()}: Successfully flushed database`);
-    }
-    const { overall } = (
-      await axios.get(process.env.URL_GLOBAL_TRIVIA_COUNT)
-    ).data;
+    const { overall } = (await axios.get(process.env.URL_GLOBAL_TRIVIA_COUNT))
+      .data;
     console.log(`${getDate()}: Successfully fetched  overall trivia count`);
     const { token } = (await axios.get(process.env.URL_SESSION_TOKEN)).data;
     console.log(`${getDate()}: Successfully fetched  session token`);
@@ -28,11 +23,11 @@ const fetchTrivia = async () => {
     ).data;
     console.log(`${getDate()}: Successfully fetched  trivia categories`);
 
-    try{
-        await redis.set("categories", JSON.stringify(trivia_categories));
-        console.log(`${getDate()}: Successfully saved categories to database`)
-    }catch(err){
-       console.log(`${getDate()}: Failed to save categories to database`, err)
+    try {
+      await redis.set("categories", JSON.stringify(trivia_categories));
+      console.log(`${getDate()}: Successfully saved categories to database`);
+    } catch (err) {
+      console.log(`${getDate()}: Failed to save categories to database`, err);
     }
 
     const trivia = [];
@@ -99,9 +94,8 @@ const fetchTrivia = async () => {
         pairIndex < difficultyQuizPairsArray.length;
         pairIndex++
       ) {
-        const [difficultyLevel, listOfQuestions] = difficultyQuizPairsArray[
-          pairIndex
-        ];
+        const [difficultyLevel, listOfQuestions] =
+          difficultyQuizPairsArray[pairIndex];
         try {
           await redis.set(
             `category-${id}-difficulty-${difficultyLevel}`,
@@ -118,6 +112,11 @@ const fetchTrivia = async () => {
       }
 
       if (categoryIndex === categories.length - 1) {
+        const date = new Date().toISOString();
+        const updateStatus = await redis.set("lastUpdatedOn", date);
+        if (updateStatus === "OK") {
+          console.log("Successfully set the latest update date");
+        }
         redis.disconnect();
         console.log(`${getDate()}: Successfully disconnected from database`);
       }
