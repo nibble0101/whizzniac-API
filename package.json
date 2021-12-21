@@ -4,7 +4,8 @@
   "description": "This is an API for whizzniac quiz app",
   "main": "server.js",
   "scripts": {
-    "start-server": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "fetch-quiz": "node src/scraper.js",
     "ping": "node src/init.js"
   },
