@@ -10,7 +10,7 @@ const swaggerDocument = require("./swagger.json");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-console.log(process.env.NODE_ENV)
+console.log(`process.env.NODE_ENV = ${process.env.NODE_ENV}`)
 app.use(express.json());
 app.use(cors());
 app.disable("x-powered-by");
