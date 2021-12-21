@@ -6,7 +6,10 @@ const swaggerUi = require("swagger-ui-express");
 const nodeCron = require("node-cron");
 const { fetchTrivia } = require("./src/scraper");
 const swaggerDocument = require("./swagger.json");
-require("dotenv").config();
+
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 app.use(express.json());
 app.use(cors());
